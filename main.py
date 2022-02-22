@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Represents a Context-free Grammar, supporting the following operations:
 # adding variables
 # adding terminals
@@ -164,6 +166,65 @@ class CFG:
                  str(self.rules) + "\nStart Variable: " + str(self.start_variable)
         return string
 
+    def validate_variables(self, variables):
+        if len(variables) != 0:
+            if variables != ['']:
+                for v in variables:
+                    if variables.count(v) == 1:
+                        if len(v) == 1:
+                            pass
+                        else:
+                            print("Each variable must be a single character.")
+                            return False
+                    else:
+                        print("Variables cannot contain duplicates.")
+                        return False
+                if "Є" not in variables:
+                    return True
+                else:
+                    print("Є is reserved for terminals and cannot be a variable.")
+                    return False
+            else:
+                print("The CFG must have at least one variable.")
+        else:
+            return False
+
+    def validate_terminals(self, terminals, variables):
+        if len(terminals) != 0:
+            if terminals != ['']:
+                for t in terminals:
+                    if terminals.count(t) == 1:
+                        if len(t) == 1:
+                            if t not in variables:
+                                pass
+                            else:
+                                print("Terminal characters cannot be the same as any variable character.")
+                                return False
+                        else:
+                            print("Each terminal must be a single character.")
+                            return False
+                    else:
+                        print("Terminals cannot contain duplicates.")
+                        return False
+                return True
+            else:
+                print("The CFG must have at least one terminal.")
+        else:
+            return False
+
+    def validate_rules(self, rules, terminals, variables):
+        return True
+
+    def validate_start_variable(self, start, variables):
+        if start is not None:
+            if start in variables:
+                return True
+            else:
+                print("Start variable must be in set of variables.")
+                return False
+        else:
+            return False
+
 # allows you to build your own CFG, step by step
 # WIP, not complete
 if __name__ == '__main__':
@@ -172,10 +233,28 @@ if __name__ == '__main__':
            "addr r -> add rule r (format: v->sub1|sub2) to the CFG\nsetv v -> set variable v as the start variable\nq - exit\n"
     g = CFG()
     print("Let's build a CFG!")
-    variables = input("What variables do you want to use? (format: v1, v2, ...)\n")
-    terminals = input("What terminals do you want to use? (format: t1, t2, ...) (use Є for empty)\n")
-    rules = input("What rules do you want to have? (format: v1->sub1|sub2, v2->sub3|sub4, ...)\n")
-    start_variable = input("What do you want to have as your start variable? Options:" + str(variables) + "\n")
-    instruction = input("Now, select what you want to do:\n" + help)
+    variables = []
+    while not g.validate_variables(variables):
+        variables = input("What variables do you want to use? (separate with commas): ").replace(" ", "").split(",")
+        print(variables)
+    terminals = []
+    while not g.validate_terminals(terminals, variables):
+        terminals = input("What terminals do you want to use? (separate with commas, and use Є for empty): ").replace(" ", "").split(",")
+        print(terminals)
+    rules = {}
+    while not g.validate_rules(rules, terminals, variables):
+        rules = input("What rules do you want to have? (format: v1->sub1|sub2, v2->sub3|sub4, ...): ").replace(" ", "").split(",")
+        print(rules)
+    start_variable = None
+    while not g.validate_start_variable(start_variable, variables):
+        start_variable = input("What do you want to have as your start variable? Options:" + str(variables) + ": ")
+        print(start_variable)
+
+    while True:
+        instruction = input("Select what you want to do:\n" + help)
+        if instruction == "q":
+            break
+        else:
+            print("Instruction \"" + str(instruction) + "\" is invalid.")
 
 
